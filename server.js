@@ -1,6 +1,5 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
 const socket = require('socket.io')
 
 const Details = require('./models/UserDetails');
@@ -64,7 +63,7 @@ app.post('/login', async(req,res) => {
         const Email = req.body.Email;
         const password = req.body.password;
         const userEmail = await Details.findOne({Email:Email});
-        if(await bcrypt.compare(password,userEmail.password)){
+        if(password === userEmail.password){
             res.render('welcome',{userName : userEmail.username})
         } else {
             res.render('login',{error : 'Wrong Password'});
@@ -75,8 +74,6 @@ app.post('/login', async(req,res) => {
 })
 app.post('/register',async(req,res) => {
     const details = new Details(req.body);
-    const hashedPassword = await bcrypt.hash(req.body.password,10)
-    details.password = hashedPassword;
     details.save()
     .then((result) =>{
         res.redirect('/');
@@ -86,4 +83,3 @@ app.post('/register',async(req,res) => {
         res.redirect('/register');
     })
 })
-
